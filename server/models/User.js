@@ -1,21 +1,21 @@
 const mongoose = require("mongoose"); // require - nạp thư viện mongoose
 
 const userSchema = new mongoose.Schema({
-  Avatar: { type: String },
-  HoTen: { type: String, required: true },
-  NgaySinh: { type: Date, required: true },
-  GioiTinh: { type: String, enum: ["Nam", "Nữ", "Khác"] },
-  DiaChi: { type: String }, // địa chỉ
-  DienThoai: { type: String, match: /^[0-9]{10}$/ },
-  Email: {
+  avatar: { type: String },
+  hoTen: { type: String, required: true },
+  ngaySinh: { type: Date, required: true },
+  gioiTinh: { type: String, enum: ["Nam", "Nữ", "Khác"] },
+  diaChi: { type: String }, // địa chỉ
+  dienThoai: { type: String, match: /^[0-9]{10}$/ },
+  email: {
     type: String,
     required: true,
     unique: true,
     match: /^\S+@\S+\.\S+$/,
   },
-  TenDangNhap: { type: String, required: true, unique: true },
-  MatKhau: { type: String, required: true },
-  NgayDangKy: { type: Date, default: Date.now },
+  tenDangNhap: { type: String, required: true, unique: true },
+  matKhau: { type: String, required: true },
+  ngayDangKy: { type: Date, default: Date.now },
 });
 
 module.exports = mongoose.model("User", userSchema);

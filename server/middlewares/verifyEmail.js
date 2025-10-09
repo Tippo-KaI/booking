@@ -1,14 +1,13 @@
-// middlewares/verifyEmail.js
 const dns = require("dns");
 const nodemailer = require("nodemailer");
 const Verification = require("../models/verification");
 
-// Kiểm tra domain email tồn tại không
+// 🧩 Kiểm tra domain của email có tồn tại không
 const checkEmailDomain = async (req, res, next) => {
-  const { Email } = req.body;
-  if (!Email) return res.status(400).json({ message: "Thiếu email" });
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ message: "Thiếu email" });
 
-  const domain = Email.split("@")[1];
+  const domain = email.split("@")[1];
   try {
     const records = await dns.promises.resolveMx(domain);
     if (!records || records.length === 0) {
@@ -22,20 +21,22 @@ const checkEmailDomain = async (req, res, next) => {
   }
 };
 
-// Gửi mã xác minh qua email
+// 📩 Gửi mã xác minh (OTP) qua email
 const sendVerificationCode = async (req, res, next) => {
-  const { Email } = req.body;
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ message: "Thiếu email" });
 
   // Tạo mã OTP 6 chữ số
   const code = Math.floor(100000 + Math.random() * 900000).toString();
 
-  // Tạo thêm trường verificationCode để “đính kèm tạm” giá trị mã OTP vào req
+  // Gắn tạm mã OTP vào request để sử dụng ở middleware/controller kế tiếp (nếu cần)
   req.verificationCode = code;
 
+  // Lưu hoặc cập nhật mã xác minh vào MongoDB
   await Verification.findOneAndUpdate(
-    { Email }, // object literal: { Email: "..." }
-    { code, expiresAt: new Date(Date.now() + 1 * 60 * 1000) }, // object literal: { code: "123456", expiresAt: "..." }
-    { upsert: true } // object literal: { upsert: true }
+    { email },
+    { code, expiresAt: new Date(Date.now() + 1 * 60 * 1000) },
+    { upsert: true }
   );
 
   try {
@@ -49,12 +50,12 @@ const sendVerificationCode = async (req, res, next) => {
 
     await transporter.sendMail({
       from: `"Xác minh đăng ký" <${process.env.EMAIL_USER}>`,
-      to: Email,
+      to: email,
       subject: "Mã xác minh đăng ký tài khoản",
       text: `Mã xác minh của bạn là: ${code}`,
     });
 
-    console.log("✅ Đã gửi mã xác minh đến:", Email);
+    console.log("✅ Đã gửi mã xác minh đến:", email);
     res
       .status(200)
       .json({ message: "Mã xác minh đã được gửi tới email của bạn" });

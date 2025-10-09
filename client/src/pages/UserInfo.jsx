@@ -5,22 +5,22 @@ import { Camera, Edit3, Save } from "lucide-react";
 const UserInfo = () => {
   const [editing, setEditing] = useState(false);
   const [user, setUser] = useState({
-    HoTen: "",
-    NgaySinh: "",
-    GioiTinh: "",
-    DiaChi: "",
-    DienThoai: "",
-    Email: "",
-    TenDangNhap: "",
-    NgayDangKy: "",
-    CCCD: "",
-    NgayCap: "",
-    NoiCap: "",
-    SoTaiKhoanNganHang: "",
-    TenNganHang: "",
-    CCCDTruoc: null,
-    CCCDSau: null,
-    Avatar: null,
+    hoTen: "",
+    ngaySinh: "",
+    gioiTinh: "",
+    diaChi: "",
+    dienThoai: "",
+    email: "",
+    tenDangNhap: "",
+    ngayDangKy: "",
+    cccd: "",
+    ngayCap: "",
+    noiCap: "",
+    soTaiKhoanNganHang: "",
+    tenNganHang: "",
+    cccdTruoc: null,
+    cccdSau: null,
+    avatar: null,
   });
 
   const handleFileChange = (e, field) => {
@@ -48,8 +48,8 @@ const UserInfo = () => {
           <div className="relative">
             <img
               src={
-                user.Avatar
-                  ? URL.createObjectURL(user.Avatar) // Hien thi anh local tu may
+                user.avatar
+                  ? URL.createObjectURL(user.avatar) // Hien thi anh local tu may
                   : ""
               }
               alt=""
@@ -62,15 +62,15 @@ const UserInfo = () => {
                   type="file"
                   accept="image/*"
                   className="hidden"
-                  onChange={(e) => handleFileChange(e, "Avatar")}
+                  onChange={(e) => handleFileChange(e, "avatar")}
                 />
               </label>
             )}
           </div>
 
-          <h2 className="text-xl font-semibold mt-4">{user.HoTen}</h2>
-          <p className="text-gray-500 text-sm mt-1">{user.Email}</p>
-          <p className="text-gray-500 text-sm">{user.DienThoai}</p>
+          <h2 className="text-xl font-semibold mt-4">{user.hoTen}</h2>
+          <p className="text-gray-500 text-sm mt-1">{user.email}</p>
+          <p className="text-gray-500 text-sm">{user.dienThoai}</p>
 
           <button
             onClick={() => setEditing(!editing)}
@@ -89,8 +89,8 @@ const UserInfo = () => {
           </button>
 
           <div className="mt-6 w-full border-t pt-4 text-sm text-gray-500">
-            <p>Thành viên từ: {user.NgayDangKy}</p>
-            <p className="mt-1">Tên đăng nhập: {user.TenDangNhap}</p>
+            <p>Thành viên từ: {user.ngayDangKy}</p>
+            <p className="mt-1">Tên đăng nhập: {user.tenDangNhap}</p>
           </div>
         </div>
 
@@ -104,12 +104,12 @@ const UserInfo = () => {
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {[
-                  { label: "Họ tên", name: "HoTen", type: "text" },
-                  { label: "Ngày sinh", name: "NgaySinh", type: "date" },
-                  { label: "Giới tính", name: "GioiTinh", type: "select" },
-                  { label: "Địa chỉ", name: "DiaChi", type: "text" },
-                  { label: "Số điện thoại", name: "DienThoai", type: "text" },
-                  { label: "Email", name: "Email", type: "email" },
+                  { label: "Họ tên", name: "hoTen", type: "text" },
+                  { label: "Ngày sinh", name: "ngaySinh", type: "date" },
+                  { label: "Giới tính", name: "gioiTinh", type: "select" },
+                  { label: "Địa chỉ", name: "diaChi", type: "text" },
+                  { label: "Số điện thoại", name: "dienThoai", type: "text" },
+                  { label: "Email", name: "email", type: "email" },
                 ].map((field) => (
                   <div key={field.name}>
                     <label className="block text-gray-700 text-sm mb-1">
@@ -153,14 +153,14 @@ const UserInfo = () => {
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {[
-                  { label: "Số CCCD", name: "CCCD" },
-                  { label: "Ngày cấp", name: "NgayCap", type: "date" },
-                  { label: "Nơi cấp", name: "NoiCap" },
+                  { label: "Số CCCD", name: "cccd" },
+                  { label: "Ngày cấp", name: "ngayCap", type: "date" },
+                  { label: "Nơi cấp", name: "noiCap" },
                   {
                     label: "Số tài khoản ngân hàng",
-                    name: "SoTaiKhoanNganHang",
+                    name: "soTaiKhoanNganHang",
                   },
-                  { label: "Tên ngân hàng", name: "TenNganHang" },
+                  { label: "Tên ngân hàng", name: "tenNganHang" },
                 ].map((field) => (
                   <div key={field.name}>
                     <label className="block text-gray-700 text-sm mb-1">
@@ -187,13 +187,13 @@ const UserInfo = () => {
                 <input
                   type="file"
                   accept="image/*"
-                  onChange={(e) => handleFileChange(e, "CCCDTruoc")}
+                  onChange={(e) => handleFileChange(e, "cccdTruoc")}
                   disabled={!editing}
                   className="w-full border rounded px-3 py-2"
                 />
-                {user.HinhAnhCCCD && (
+                {user.cccdTruoc && (
                   <img
-                    src={URL.createObjectURL(user.HinhAnhCCCD)}
+                    src={URL.createObjectURL(user.cccdTruoc)}
                     alt="CCCD"
                     className="mt-3 w-64 rounded-xl shadow"
                   />
@@ -206,13 +206,13 @@ const UserInfo = () => {
                 <input
                   type="file"
                   accept="image/*"
-                  onChange={(e) => handleFileChange(e, "CCCDSau")}
+                  onChange={(e) => handleFileChange(e, "cccdSau")}
                   disabled={!editing}
                   className="w-full border rounded px-3 py-2"
                 />
-                {user.HinhAnhCCCD && (
+                {user.cccdSau && (
                   <img
-                    src={URL.createObjectURL(user.HinhAnhCCCD)}
+                    src={URL.createObjectURL(user.cccdSau)}
                     alt="CCCD"
                     className="mt-3 w-64 rounded-xl shadow"
                   />
