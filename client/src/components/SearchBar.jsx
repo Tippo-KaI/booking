@@ -41,7 +41,7 @@ const SearchBar = ({ onSearch, placeholder = "Tìm kiếm..." }) => {
         </button>
         <button
           type="button"
-          onClick={() => navigate("/userinfo")}
+          onClick={() => navigate("/add-tour")}
           className="bg-yellow-300 text-white px-4 py-2 rounded hover:bg-yellow-400"
         >
           Đăng tải
