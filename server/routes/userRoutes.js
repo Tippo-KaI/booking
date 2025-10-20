@@ -7,11 +7,15 @@ const {
   sendVerificationCode,
 } = require("../middlewares/verifyEmail");
 
-const { verifyOTP } = require("../controllers/verifyController");
+const { forgotPassword } = require("../controllers/forgotPasswordController");
+
+const { verifyUser } = require("../controllers/verifyController");
 
 router.post("/register", checkEmailDomain, sendVerificationCode);
-router.post("/verifyOTP", verifyOTP);
+router.post("/checkEmail", checkEmailDomain, sendVerificationCode);
+router.post("/verifyUser", verifyUser);
 router.post("/login", loginUser);
+router.post("/forgotPassword", forgotPassword);
 router.get("/", getUsers);
 
 module.exports = router;

@@ -72,7 +72,7 @@ function Login() {
               htmlFor="email"
               className="block mb-1 font-medium text-gray-700"
             >
-              Email hoặc Username <span className="text-red-500">*</span>
+              Email <span className="text-red-500">*</span>
             </label>
             <input
               type="email"
@@ -80,7 +80,7 @@ function Login() {
               value={form.email}
               onChange={handleChange}
               className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-              placeholder="Nhập email hoặc username..."
+              placeholder="Nhập email"
             />
             {error.email && (
               <p className="text-red-500 text-sm mt-1">{error.email}</p>
@@ -115,6 +115,15 @@ function Login() {
           >
             Đăng nhập
           </button>
+
+          <div>
+            <Link
+              to={"/forgotpass"}
+              className="text-sm text-blue-500 hover:underline"
+            >
+              Quên mật khẩu?
+            </Link>
+          </div>
 
           {/* Register link */}
           <div className="mt-4 text-center text-gray-600">

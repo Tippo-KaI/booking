@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express"); // express tạo server nodejs
 const mongoose = require("mongoose");
 const cors = require("cors"); //middlewares cho phép gọi API trừ domain khác

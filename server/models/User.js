@@ -10,11 +10,12 @@ const userSchema = new mongoose.Schema({
   email: {
     type: String,
     required: true,
-    unique: true,
+    unique: true, //db.users.createIndex({ email: 1 }, { unique: true })
+    lowercase: true,
     match: /^\S+@\S+\.\S+$/,
   },
   tenDangNhap: { type: String, required: true, unique: true },
-  matKhau: { type: String, required: true },
+  password: { type: String, required: true },
   ngayDangKy: { type: Date, default: Date.now },
 });
 

@@ -16,7 +16,7 @@ const Register = () => {
     dienThoai: "",
     email: "",
     tenDangNhap: "",
-    matKhau: "",
+    password: "",
     confirmPassword: "",
   });
 
@@ -31,10 +31,15 @@ const Register = () => {
     let newError = {};
     if (!form.hoTen) newError.HoTen = "Họ tên là bắt buộc";
     if (!form.ngaySinh) newError.NgaySinh = "Ngày sinh là bắt buộc";
+    if (!form.dienThoai) newError.DienThoai = "Số điện thoại là bắt buộc";
+    else if (!/^[0-9]{10}$/.test(form.dienThoai)) {
+      newError.DienThoai = "Số điện thoại không hợp lệ (10 chữ số)";
+    }
+    if (!form.gioiTinh) newError.GioiTinh = "Giới tính là bắt buộc";
     if (!form.email) newError.Email = "Email là bắt buộc";
     if (!form.tenDangNhap) newError.TenDangNhap = "Tên đăng nhập là bắt buộc";
-    if (!form.matKhau) newError.MatKhau = "Mật khẩu là bắt buộc";
-    if (form.matKhau !== form.confirmPassword) {
+    if (!form.password) newError.password = "Mật khẩu là bắt buộc";
+    if (form.password !== form.confirmPassword) {
       newError.confirmPassword = "Mật khẩu không khớp";
     }
 
@@ -57,7 +62,7 @@ const Register = () => {
         alert(data.message);
       }
     } catch (err) {
-      console.error(err);
+      // console.error(err);
       alert("Lỗi kết nối server");
     }
   };
@@ -67,7 +72,7 @@ const Register = () => {
     if (!OTP) return alert("Vui lòng nhập mã OTP");
 
     try {
-      const res = await fetch("http://localhost:5000/api/users/verifyOTP", {
+      const res = await fetch("http://localhost:5000/api/users/verifyUser", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: form.email, otp: OTP, formData: form }),
@@ -160,6 +165,9 @@ const Register = () => {
                 <option value="Nữ">Nữ</option>
                 <option value="Khác">Khác</option>
               </select>
+              {error.GioiTinh && (
+                <p className="text-red-500 text-sm">{error.GioiTinh}</p>
+              )}
             </div>
 
             {/* Địa chỉ */}
@@ -188,6 +196,9 @@ const Register = () => {
                 className="w-full p-3 border rounded-lg"
                 placeholder="Nhập số điện thoại..."
               />
+              {error.DienThoai && (
+                <p className="text-red-500 text-sm">{error.DienThoai}</p>
+              )}
             </div>
 
             {/* Email */}
@@ -231,14 +242,14 @@ const Register = () => {
               </label>
               <input
                 type="password"
-                name="matKhau"
-                value={form.matKhau}
+                name="password"
+                value={form.password}
                 onChange={handleChange}
                 className="w-full p-3 border rounded-lg"
                 placeholder="Nhập mật khẩu..."
               />
-              {error.MatKhau && (
-                <p className="text-red-500 text-sm">{error.MatKhau}</p>
+              {error.password && (
+                <p className="text-red-500 text-sm">{error.password}</p>
               )}
             </div>
 
