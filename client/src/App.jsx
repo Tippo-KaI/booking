@@ -9,7 +9,10 @@ import DiChuyen from "./pages/DiChuyen";
 import HoatDong from "./pages/HoatDong";
 import ChuyenBay from "./pages/ChuyenBay";
 import UserInfo from "./pages/UserInfo";
+
 import ForgotPass from "./pages/ForgotPass";
+
+import AddTour from "./pages/AddTour";
 
 import { Routes, Route } from "react-router-dom";
 
@@ -27,6 +30,7 @@ function App() {
       <Route path="/hoatdong" element={<HoatDong />} />
       <Route path="/userinfo" element={<UserInfo />} />
       <Route path="/forgotpass" element={<ForgotPass />} />
+      <Route path="/add-tour" element={<AddTour />} />
     </Routes>
   );
 }
