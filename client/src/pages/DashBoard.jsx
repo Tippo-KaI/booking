@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import React from "react";
 import Header from "../components/Header";
 import DashboardLayout from "../components/DashboardLayout";
@@ -6,6 +7,7 @@ import DaNang from "../assets/images/DaNang.jpg";
 import NhaTrang from "../assets/images/NhaTrang.jpg";
 
 const DashBoard = () => {
+  const navigate = useNavigate();
   const tours = [
     {
       id: 1,
@@ -31,6 +33,9 @@ const DashBoard = () => {
   const handleSearch = (query) => {
     console.log("Tìm tour:", query);
   };
+  const handleTourClick = (id) => {
+    navigate(`/tour/${id}`); 
+  };
   return (
     <div>
       <Header />
@@ -41,6 +46,7 @@ const DashBoard = () => {
           {tours.map((tour) => (
             <div
               key={tour.id}
+              onClick={() => handleTourClick(tour.id)}
               className="bg-white p-4 rounded-xl shadow border hover:shadow-lg transition flex items-center gap-4"
             >
               <img

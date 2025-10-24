@@ -1,10 +1,13 @@
-import DashboardLayout from "../components/DashboardLayout";
+import { useNavigate } from "react-router-dom";
+import DashboardLayout from "../components/DashboardLayout"; 
 import Header from "../components/Header";
 import DaLat from "../assets/images/DaLat.jpg";
 import DaNang from "../assets/images/DaNang.jpg";
 import NhaTrang from "../assets/images/NhaTrang.jpg";
 
 const TourPage = () => {
+  const navigate = useNavigate();
+
   const tours = [
     {
       id: 1,
@@ -30,6 +33,10 @@ const TourPage = () => {
     console.log("Tìm tour:", query);
   };
 
+  const handleTourClick = (id) => {
+    navigate(`/tour/${id}`); // 👉 chuyển sang trang chi tiết
+  };
+
   return (
     <div>
       <Header />
@@ -40,7 +47,8 @@ const TourPage = () => {
           {tours.map((tour) => (
             <div
               key={tour.id}
-              className="bg-white p-4 rounded-xl shadow border hover:shadow-lg transition flex items-center gap-4"
+              onClick={() => handleTourClick(tour.id)} // 👈 thêm sự kiện click
+              className="bg-white p-4 rounded-xl shadow border hover:shadow-lg transition flex items-center gap-4 cursor-pointer"
             >
               <img
                 src={tour.img}

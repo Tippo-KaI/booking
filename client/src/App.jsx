@@ -13,6 +13,7 @@ import UserInfo from "./pages/UserInfo";
 import ForgotPass from "./pages/ForgotPass";
 
 import AddTour from "./pages/AddTour";
+import TourDetail from "./pages/TourDetail";
 
 import { Routes, Route } from "react-router-dom";
 
@@ -31,6 +32,7 @@ function App() {
       <Route path="/userinfo" element={<UserInfo />} />
       <Route path="/forgotpass" element={<ForgotPass />} />
       <Route path="/add-tour" element={<AddTour />} />
+      <Route path="/tour/:id" element={<TourDetail />} />
     </Routes>
   );
 }
