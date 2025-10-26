@@ -9,12 +9,9 @@ import DiChuyen from "./pages/DiChuyen";
 import HoatDong from "./pages/HoatDong";
 import ChuyenBay from "./pages/ChuyenBay";
 import UserInfo from "./pages/UserInfo";
-
 import ForgotPass from "./pages/ForgotPass";
-
 import AddTour from "./pages/AddTour";
 import TourDetail from "./pages/TourDetail";
-
 import { Routes, Route } from "react-router-dom";
 
 function App() {
