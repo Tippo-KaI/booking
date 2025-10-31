@@ -1,4 +1,4 @@
-const mongoose = require("mongoose"); // require - nạp thư viện mongoose
+import mongoose from "mongoose"; // import - nạp thư viện mongoose
 
 const userSchema = new mongoose.Schema({
   avatar: { type: String },
@@ -10,7 +10,7 @@ const userSchema = new mongoose.Schema({
   email: {
     type: String,
     required: true,
-    unique: true, //db.users.createIndex({ email: 1 }, { unique: true })
+    unique: true, // db.users.createIndex({ email: 1 }, { unique: true })
     lowercase: true,
     match: /^\S+@\S+\.\S+$/,
   },
@@ -19,5 +19,5 @@ const userSchema = new mongoose.Schema({
   ngayDangKy: { type: Date, default: Date.now },
 });
 
-module.exports = mongoose.model("User", userSchema);
-// Tạo model tên là user dựa trên userSchema rồi exports
+export default mongoose.model("User", userSchema);
+// Tạo model tên là "User" dựa trên userSchema rồi export ra ngoài

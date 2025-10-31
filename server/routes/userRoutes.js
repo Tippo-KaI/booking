@@ -1,16 +1,13 @@
-const express = require("express");
-const router = express.Router(); //express.Router() tạo ra router riêng để định nghĩa các route
-const { getUsers, loginUser } = require("../controllers/userController");
+// server/routes/userRoutes.js
+import express from "express";
+import { getUsers, loginUser } from "../controllers/userController.js";
+import { checkEmailDomain, sendVerificationCode } from "../middlewares/verifyEmail.js";
+import { forgotPassword } from "../controllers/forgotPasswordController.js";
+import { verifyUser } from "../controllers/verifyController.js";
 
-const {
-  checkEmailDomain,
-  sendVerificationCode,
-} = require("../middlewares/verifyEmail");
+const router = express.Router();
 
-const { forgotPassword } = require("../controllers/forgotPasswordController");
-
-const { verifyUser } = require("../controllers/verifyController");
-
+// 🧩 Các route người dùng
 router.post("/register", checkEmailDomain, sendVerificationCode);
 router.post("/checkEmail", checkEmailDomain, sendVerificationCode);
 router.post("/verifyUser", verifyUser);
@@ -18,4 +15,4 @@ router.post("/login", loginUser);
 router.post("/forgotPassword", forgotPassword);
 router.get("/", getUsers);
 
-module.exports = router;
+export default router;

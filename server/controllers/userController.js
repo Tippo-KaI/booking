@@ -1,9 +1,9 @@
-const User = require("../models/user");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
+import User from "../models/user.js";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
 // Lấy danh sách user
-exports.getUsers = async (req, res) => {
+export const getUsers = async (req, res) => {
   try {
     const users = await User.find().select("-password"); // Ẩn mật khẩu
     res.json(users);
@@ -13,7 +13,7 @@ exports.getUsers = async (req, res) => {
 };
 
 // Đăng nhập
-exports.loginUser = async (req, res) => {
+export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body; // taiKhoan có thể là email hoặc tenDangNhap
 

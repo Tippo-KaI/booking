@@ -1,8 +1,8 @@
-const bcrypt = require("bcryptjs");
-const User = require("../models/user");
-const Verification = require("../models/verification");
+import bcrypt from "bcryptjs";
+import User from "../models/user.js";
+import Verification from "../models/verification.js";
 
-exports.verifyUser = async (req, res) => {
+export const verifyUser = async (req, res) => {
   const { email, otp, formData } = req.body;
 
   if (!email || !otp) {
@@ -31,15 +31,13 @@ exports.verifyUser = async (req, res) => {
     if (existingByEmail) {
       return res.status(400).json({ message: "Email đã tồn tại" });
     }
+
     const record = await Verification.findOne({ email });
     if (!record) {
       return res
         .status(400)
         .json({ message: "Không tìm thấy mã xác minh cho email này" });
     }
-
-    // Log record để debug
-    // console.log("DEBUG verification record:", record);
 
     if (record.code !== otp) {
       return res.status(400).json({ message: "Mã xác minh không đúng" });
@@ -103,7 +101,6 @@ exports.verifyUser = async (req, res) => {
 
     return res.status(500).json({
       message: "Lỗi server khi xác minh mã",
-      // error: error.message, // tạm để debug
     });
   }
 };

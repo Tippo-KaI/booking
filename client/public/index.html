@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Thêm Tour Du Lịch</title>
+  </head>
+
+  <body>
+    <h1>Thêm Tour Du Lịch</h1>
+
+    <form id="tourForm" enctype="multipart/form-data">
+      <label>Tên tour:</label><br />
+      <input type="text" name="tenTour" required /><br /><br />
+
+      <label>Địa điểm:</label><br />
+      <input type="text" name="diaDiem" required /><br /><br />
+
+      <label>Giá (VND):</label><br />
+      <input type="number" name="gia" required /><br /><br />
+
+      <label>Ngày khởi hành:</label><br />
+      <input type="date" name="ngayKhoiHanh" required /><br /><br />
+
+      <label>Số ngày:</label><br />
+      <input type="number" name="soNgay" min="1" required /><br /><br />
+
+      <label>Số lượng khách tối đa:</label><br />
+      <input type="number" name="soLuongKhachToiDa" min="1" required /><br /><br />
+
+      <label>Ăn uống:</label><br />
+      <select name="anUong" required>
+        <option value="">-- Chọn loại ăn uống --</option>
+        <option value="buffet">Buffet</option>
+        <option value="set menu">Set menu</option>
+        <option value="tự túc">Tự túc</option>
+      </select><br /><br />
+
+      <label>Khu vực tham quan:</label><br />
+      <input type="text" name="khuVucThamQuan" required /><br /><br />
+
+      <label>Mô tả:</label><br />
+      <textarea name="moTa"></textarea><br /><br />
+
+      <label>Hình ảnh:</label><br />
+      <input type="file" name="hinhAnh" accept="image/*" required /><br /><br />
+
+      <button type="submit">Thêm Tour</button>
+    </form>
+
+    <p id="message"></p>
+
+    <a href="tour.html">📋 Xem danh sách tour</a>
+
+    <script>
+      const apiUrl = "http://localhost:5000/api/tour";
+      const form = document.getElementById("tourForm");
+      const msg = document.getElementById("message");
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        msg.textContent = "Đang gửi dữ liệu...";
+        msg.style.color = "black";
+
+        const formData = new FormData(form);
+
+        try {
+          const res = await fetch(apiUrl, { method: "POST", body: formData });
+          const data = await res.json();
+
+          if (!res.ok) {
+            let errMsg = data.message || "❌ Thêm tour thất bại.";
+            if (data.errors) {
+              errMsg += "\n" + Object.entries(data.errors)
+                .map(([field, msg]) => `• ${field}: ${msg}`)
+                .join("\n");
+            }
+            msg.textContent = errMsg;
+            msg.style.color = "red";
+            return;
+          }
+
+          msg.textContent = "🎉 Thêm tour thành công!";
+          msg.style.color = "green";
+          form.reset();
+        } catch (err) {
+          msg.textContent = "⚠️ Lỗi khi gửi yêu cầu: " + err.message;
+          msg.style.color = "red";
+        }
+      });
+    </script>
+  </body>
+</html>

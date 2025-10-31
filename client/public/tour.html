@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Danh sách tour</title>
+  </head>
+
+  <body>
+    <h1>Danh sách Tour Du Lịch</h1>
+    <a href="index.html">➕ Thêm tour mới</a>
+
+    <div id="tourList"></div>
+
+    <script>
+      const apiUrl = "http://localhost:5000/api/tour";
+      const list = document.getElementById("tourList");
+
+      async function loadTours() {
+        list.innerHTML = "Đang tải danh sách...";
+        try {
+          const res = await fetch(apiUrl);
+          const tours = await res.json();
+
+          if (!res.ok) {
+            list.innerHTML = "❌ Lỗi tải danh sách: " + (tours.message || "Không rõ nguyên nhân");
+            return;
+          }
+
+          if (tours.length === 0) {
+            list.innerHTML = "📭 Chưa có tour nào.";
+            return;
+          }
+
+          list.innerHTML = tours.map(t => `
+            <div style="border:1px solid #999; padding:10px; margin-bottom:10px;">
+              <h3>${t.tenTour}</h3>
+              <p>📍 Địa điểm: ${t.diaDiem}</p>
+              <p>💰 Giá: ${t.gia.toLocaleString()} VND</p>
+              <p>📅 Khởi hành: ${new Date(t.ngayKhoiHanh).toLocaleDateString("vi-VN")}</p>
+              <p>🕒 Số ngày: ${t.soNgay}</p>
+              <p>👥 Số khách tối đa: ${t.soLuongKhachToiDa}</p>
+              <p>🥗 Ăn uống: ${t.anUong}</p>
+              <p>🗺️ Khu vực: ${t.khuVucThamQuan}</p>
+              <p>📝 Mô tả: ${t.moTa || "(Không có)"}</p>
+              <p>📸 Ảnh:
+                ${t.hinhAnh
+                  ? `<img src="/uploads/${t.hinhAnh}" alt="${t.tenTour}" width="200"/>`
+                  : "(Chưa có ảnh)"}
+              </p>
+              <p>📦 Trạng thái: ${t.daDay ? "❌ Đã đầy" : "✅ Còn chỗ"}</p>
+              <button onclick="deleteTour('${t._id}')">🗑️ Xóa</button>
+            </div>
+          `).join("");
+        } catch (err) {
+          list.innerHTML = "⚠️ Lỗi khi tải tour: " + err.message;
+        }
+      }
+
+      async function deleteTour(id) {
+        if (!confirm("Bạn có chắc muốn xóa tour này không?")) return;
+        try {
+          const res = await fetch(`${apiUrl}/${id}`, { method: "DELETE" });
+          const data = await res.json();
+          alert(data.message || "Đã xóa tour!");
+          loadTours();
+        } catch (err) {
+          alert("❌ Lỗi khi xóa: " + err.message);
+        }
+      }
+
+      loadTours();
+    </script>
+  </body>
+</html>
