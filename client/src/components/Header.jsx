@@ -26,6 +26,7 @@ const Header = () => {
           <Link to="/contact" className="hover:text-blue-600">
             Liên hệ
           </Link>
+          <Link to="/userinfo">Account</Link>
         </nav>
       </div>
 

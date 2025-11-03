@@ -1,4 +1,5 @@
 require("dotenv").config();
+const path = require("path");
 const express = require("express"); // express tạo server nodejs
 const mongoose = require("mongoose");
 const cors = require("cors"); //middlewares cho phép gọi API trừ domain khác
@@ -9,6 +10,7 @@ const app = express(); // tạo express chính định nghĩa middlewares và ro
 //Middleware - Phần mềm trung gian
 app.use(cors());
 app.use(express.json());
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 //import routes
 const userRoutes = require("./routes/userRoutes");
