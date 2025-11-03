@@ -1,12 +1,11 @@
-const User = require("../models/user");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
+import User from "../models/user.js";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
 exports.updateUser = async (req, res) => {
   try {
     const updateData = { ...req.body }; // <<< Sửa lỗi khoảng trắng
 
-    // Logic xử lý file của bạn vẫn đúng
     if (req.files.avatar)
       updateData.avatar = `/uploads/${req.files.avatar[0].filename}`;
     if (req.files.cccdTruoc)
@@ -43,7 +42,8 @@ exports.getUserInfo = async (req, res) => {
   }
 };
 
-exports.getUsers = async (req, res) => {
+// Lấy danh sách user
+export const getUsers = async (req, res) => {
   try {
     const users = await User.find().select("-password"); // Ẩn mật khẩu
     res.json(users);
@@ -52,7 +52,7 @@ exports.getUsers = async (req, res) => {
   }
 };
 
-exports.loginUser = async (req, res) => {
+export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body; // taiKhoan có thể là email hoặc tenDangNhap
 

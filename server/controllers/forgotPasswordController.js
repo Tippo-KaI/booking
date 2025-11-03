@@ -1,12 +1,14 @@
-const User = require("../models/user");
-const Verification = require("../models/verification");
-const bcrypt = require("bcryptjs");
+import User from "../models/user.js";
+import Verification from "../models/verification.js";
+import bcrypt from "bcryptjs";
 
-exports.forgotPassword = async (req, res) => {
+export const forgotPassword = async (req, res) => {
   const { email, otp, newPassword } = req.body;
+
   if (!email) {
     return res.status(400).json({ message: "Email is required" });
   }
+
   try {
     const existingByEmail = await User.findOne({ email });
     if (!existingByEmail) {
@@ -19,9 +21,11 @@ exports.forgotPassword = async (req, res) => {
         .status(400)
         .json({ message: "Không tìm thấy mã xác minh cho email này" });
     }
+
     if (record.code !== otp) {
       return res.status(400).json({ message: "Mã xác minh không đúng" });
     }
+
     if (record.expiresAt < new Date()) {
       return res.status(400).json({ message: "Mã xác minh đã hết hạn" });
     }
@@ -29,6 +33,7 @@ exports.forgotPassword = async (req, res) => {
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     await User.updateOne({ email }, { password: hashedPassword });
     await Verification.deleteOne({ email });
+
     return res.status(200).json({ message: "Đặt lại mật khẩu thành công" });
   } catch (error) {
     return res.status(500).json({ message: "Lỗi server" });
