@@ -1,148 +1,202 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import Header from "../components/Header";
+import { useState } from "react";
 import DashboardLayout from "../components/DashboardLayout";
+import Header from "../components/Header";
 
 const AddTour = () => {
-  const navigate = useNavigate();
-  const [formData, setFormData] = useState({
+  const [form, setForm] = useState({
     name: "",
-    description: "",
-    location: "",
-    price: "",
     image: "",
+    description: "",
+    itinerary: "",
+    price: "",
+    duration: "",
+    location: "",
+    departureDate: "",
+    slots: "",
+    notes: "",
   });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-
-    if (formData.price <= 0) return alert("Giá tour phải lớn hơn 0!");
-
-    try {
-      const response = await fetch("http://localhost:5000/api/tours", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      alert("Đăng tải tour thành công!");
-      setFormData({
-        name: "",
-        description: "",
-        location: "",
-        price: "",
-        image: "",
-      });
-      navigate("/dashboard");
-    } catch (err) {
-      console.error(err);
-      alert("Đăng tour thất bại, vui lòng kiểm tra lại!");
-    }
+    console.log("Tour mới:", form);
+    alert("Đã thêm tour thành công!");
   };
 
   return (
     <div>
       <Header />
       <DashboardLayout>
-        <h2 className="text-2xl font-bold mb-6">Đăng tải Tour mới</h2>
+        <h2 className="text-2xl font-bold mb-6 text-gray-800">Đăng Tải Tour Mới</h2>
+
         <form
           onSubmit={handleSubmit}
-          className="bg-white p-6 rounded-xl shadow-md max-w-2xl mx-auto"
+          className="bg-white shadow-md rounded-xl p-6 space-y-5 max-w-3xl"
         >
-          <div className="mb-4">
-            <label className="block text-gray-700 font-medium mb-1">
-              Tên tour
+          {/* Tên tour */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Tên Tour
             </label>
             <input
               type="text"
               name="name"
-              value={formData.name}
+              value={form.name}
               onChange={handleChange}
-              required
-              className="w-full border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Nhập tên tour..."
+              className="w-full border rounded-lg p-2 focus:ring focus:ring-blue-200"
+              required
             />
           </div>
 
-          <div className="mb-4">
-            <label className="block text-gray-700 font-medium mb-1">
-              Mô tả
-            </label>
-            <textarea
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              rows="3"
-              required
-              className="w-full border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Nhập mô tả..."
-            ></textarea>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-gray-700 font-medium mb-1">
-                Địa điểm
-              </label>
-              <input
-                type="text"
-                name="location"
-                value={formData.location}
-                onChange={handleChange}
-                required
-                className="w-full border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Nhập địa điểm..."
-              />
-            </div>
-
-            <div>
-              <label className="block text-gray-700 font-medium mb-1">
-                Giá (VND)
-              </label>
-              <input
-                type="number"
-                name="price"
-                value={formData.price}
-                onChange={handleChange}
-                required
-                className="w-full border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Nhập giá tour..."
-              />
-            </div>
-          </div>
-
-          <div className="mt-4">
-            <label className="block text-gray-700 font-medium mb-1">
+          {/* Ảnh */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               Link ảnh (URL)
             </label>
             <input
               type="text"
               name="image"
-              value={formData.image}
+              value={form.image}
               onChange={handleChange}
-              required
-              className="w-full border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Dán link ảnh..."
+              placeholder="https://example.com/image.jpg"
+              className="w-full border rounded-lg p-2 focus:ring focus:ring-blue-200"
             />
           </div>
 
-          <button
-            type="submit"
-            className="mt-6 w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition"
-          >
-            Đăng tải
-          </button>
+          {/* Mô tả ngắn */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Mô tả ngắn
+            </label>
+            <textarea
+              name="description"
+              value={form.description}
+              onChange={handleChange}
+              rows="2"
+              placeholder="Mô tả ngắn gọn về tour..."
+              className="w-full border rounded-lg p-2 focus:ring focus:ring-blue-200"
+            ></textarea>
+          </div>
+
+          {/* Lịch trình */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Lịch trình chi tiết
+            </label>
+            <textarea
+              name="itinerary"
+              value={form.itinerary}
+              onChange={handleChange}
+              rows="4"
+              placeholder="Nhập lịch trình của tour..."
+              className="w-full border rounded-lg p-2 focus:ring focus:ring-blue-200"
+            ></textarea>
+          </div>
+
+          {/* Giá, Số ngày, Địa điểm */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Giá (VND)
+              </label>
+              <input
+                type="number"
+                name="price"
+                value={form.price}
+                onChange={handleChange}
+                placeholder="Ví dụ: 2500000"
+                className="w-full border rounded-lg p-2 focus:ring focus:ring-blue-200"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Số ngày / đêm
+              </label>
+              <input
+                type="text"
+                name="duration"
+                value={form.duration}
+                onChange={handleChange}
+                placeholder="3 ngày 2 đêm"
+                className="w-full border rounded-lg p-2 focus:ring focus:ring-blue-200"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Địa điểm
+              </label>
+              <input
+                type="text"
+                name="location"
+                value={form.location}
+                onChange={handleChange}
+                placeholder="Đà Lạt, Nha Trang..."
+                className="w-full border rounded-lg p-2 focus:ring focus:ring-blue-200"
+              />
+            </div>
+          </div>
+
+          {/* Ngày khởi hành & Số lượng chỗ */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Ngày khởi hành
+              </label>
+              <input
+                type="date"
+                name="departureDate"
+                value={form.departureDate}
+                onChange={handleChange}
+                className="w-full border rounded-lg p-2 focus:ring focus:ring-blue-200"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Số lượng chỗ
+              </label>
+              <input
+                type="number"
+                name="slots"
+                value={form.slots}
+                onChange={handleChange}
+                placeholder="20"
+                className="w-full border rounded-lg p-2 focus:ring focus:ring-blue-200"
+              />
+            </div>
+          </div>
+
+          {/* Ghi chú */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Ghi chú
+            </label>
+            <textarea
+              name="notes"
+              value={form.notes}
+              onChange={handleChange}
+              rows="2"
+              placeholder="Thông tin thêm (nếu có)..."
+              className="w-full border rounded-lg p-2 focus:ring focus:ring-blue-200"
+            ></textarea>
+          </div>
+
+          {/* Nút submit */}
+          <div className="pt-4">
+            <button
+              type="submit"
+              className="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition"
+            >
+              Đăng tour
+            </button>
+          </div>
         </form>
       </DashboardLayout>
     </div>
