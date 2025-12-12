@@ -2,35 +2,7 @@ import User from "../models/user.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
-exports.updateUser = async (req, res) => {
-  try {
-    const updateData = { ...req.body }; // <<< Sửa lỗi khoảng trắng
-
-    if (req.files.avatar)
-      updateData.avatar = `/uploads/${req.files.avatar[0].filename}`;
-    if (req.files.cccdTruoc)
-      updateData.cccdTruoc = `/uploads/${req.files.cccdTruoc[0].filename}`;
-    if (req.files.cccdSau)
-      updateData.cccdSau = `/uploads/${req.files.cccdSau[0].filename}`;
-
-    const updatedUser = await User.findByIdAndUpdate(
-      req.user.id,
-      { $set: updateData },
-      { new: true, select: "-password" }
-    );
-
-    if (!updatedUser) {
-      return res.status(404).json({ message: "Không tìm thấy người dùng." });
-    }
-
-    res.json(updatedUser);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ message: "Lỗi máy chủ: " + err.message });
-  }
-};
-
-exports.getUserInfo = async (req, res) => {
+export const getUserInfo = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select("-password");
     if (!user) {
@@ -54,7 +26,7 @@ export const getUsers = async (req, res) => {
 
 export const loginUser = async (req, res) => {
   try {
-    const { email, password } = req.body; // taiKhoan có thể là email hoặc tenDangNhap
+    const { email, password } = req.body;
 
     if (!email || !password) {
       return res.status(400).json({ message: "Thiếu Email hoặc Mật khẩu" });
@@ -76,9 +48,13 @@ export const loginUser = async (req, res) => {
     // Ẩn mật khẩu khi trả về
     const { password: pw, ...userData } = user.toObject();
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "1d",
-    });
+    const token = jwt.sign(
+      { id: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "1d",
+      }
+    );
 
     res.json({ message: "Đăng nhập thành công", user: userData, token });
   } catch (err) {

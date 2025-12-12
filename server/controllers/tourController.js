@@ -1,207 +1,204 @@
-import Tour from "../models/tour.js"; // Viết hoa T cho đồng nhất
+// controllers/tourController.js
 
-// 🟢 Lấy danh sách tour (chỉ hiển thị tour chưa đầy)
-export const getTours = async (req, res) => {
+const Tour = require("../models/Tour");
+
+// ===================================================
+// Hàm Create (Đăng tải Tour mới)
+// Endpoint: POST /api/tours/create
+// ===================================================
+const createNewTour = async (req, res) => {
   try {
-    const tours = await Tour.find({ daDay: { $ne: true } });
-    res.status(200).json(tours);
-  } catch (error) {
-    console.error("❌ Lỗi khi lấy danh sách tour:", error);
-    res.status(500).json({
-      message: "Lỗi khi lấy danh sách tour",
-      error: error.message,
-    });
-  }
-};
-
-// 🟢 Tạo tour mới
-export const createTour = async (req, res) => {
-  try {
-    console.log("📥 Dữ liệu nhận từ client:", req.body);
-    console.log("📸 File upload:", req.file);
-
     const {
       tenTour,
       diaDiem,
-      ngayKhoiHanh,
-      soNgay,
-      gia,
       moTa,
-      soLuongKhachToiDa,
-      anUong,
-      khuVucThamQuan,
-    } = req.body;
+      anhDaiDien,
+      loaiHinh,
+      // 💡 TRƯỜNG MỚI:
+      giaCoBan, // Giá cố định
+      thoiGian, // Số ngày/thời lượng cố định
+    } = req.body; // Cập nhật kiểm tra thiếu trường dữ liệu bắt buộc
 
-    // ✅ Kiểm tra các trường bắt buộc
     if (
       !tenTour ||
       !diaDiem ||
-      !ngayKhoiHanh ||
-      !soNgay ||
-      !gia ||
-      !soLuongKhachToiDa ||
-      !khuVucThamQuan
-    ) {
-      return res.status(400).json({
-        message: "⚠️ Vui lòng điền đầy đủ thông tin tour.",
-      });
-    }
-
-    // ✅ Chuyển dữ liệu sang đúng kiểu
-    const giaNum = Number(gia);
-    const soNgayNum = Number(soNgay);
-    const soLuongKhachToiDaNum = Number(soLuongKhachToiDa);
-
-    if (
-      Number.isNaN(giaNum) ||
-      Number.isNaN(soNgayNum) ||
-      Number.isNaN(soLuongKhachToiDaNum)
+      !giaCoBan || // Kiểm tra giá
+      !thoiGian || // Kiểm tra thời gian
+      !anhDaiDien ||
+      !moTa ||
+      !loaiHinh
     ) {
       return res.status(400).json({
         message:
-          "⚠️ Các trường giá, số ngày và số lượng khách phải là số hợp lệ.",
+          "Vui lòng điền đầy đủ Tên, Địa điểm, Mô tả, Giá, Thời gian và Ảnh đại diện.",
       });
     }
 
-    // ✅ Chuẩn hóa giá trị anUong
-    const mapAnUong = {
-      buffet: "Buffet",
-      "set menu": "Set menu",
-      setmenu: "Set menu",
-      "tự túc": "Tự túc",
-      "tu tuc": "Tự túc",
-      tutuc: "Tự túc",
-    };
-
-    const rawAnUong = (anUong || "").toString().trim().toLowerCase();
-    const anUongNormalized = mapAnUong[rawAnUong] || anUong;
-
-    const validAnUong = ["Set menu", "Tự túc", "Buffet"];
-    if (!validAnUong.includes(anUongNormalized)) {
-      return res.status(400).json({
-        message: `⚠️ Giá trị ăn uống không hợp lệ. Chỉ chấp nhận: ${validAnUong.join(
-          ", "
-        )}`,
-      });
+    // Kiểm tra định dạng giá
+    if (isNaN(giaCoBan) || Number(giaCoBan) <= 0) {
+      return res
+        .status(400)
+        .json({ message: "Giá cơ bản phải là số dương hợp lệ." });
     }
 
-    // ✅ Xử lý ảnh upload
-    const hinhAnh = req.file?.filename || null;
-
-    // ✅ Tạo đối tượng Tour mới
     const newTour = new Tour({
       tenTour,
       diaDiem,
-      ngayKhoiHanh: new Date(ngayKhoiHanh),
-      soNgay: soNgayNum,
-      gia: giaNum,
       moTa,
-      hinhAnh,
-      soLuongKhachToiDa: soLuongKhachToiDaNum,
-      anUong: anUongNormalized,
-      khuVucThamQuan,
-      soLuongDaDangKy: 0,
-      daDay: false,
+      // 💡 TRƯỜNG MỚI
+      giaCoBan: Number(giaCoBan), // Lưu dưới dạng Number
+      thoiGian,
+      // 💡 TRƯỜNG CŨ BỊ BỎ: linkAffiliate, nganSach đã được loại bỏ
+
+      anhDaiDien,
+      loaiHinh,
     });
 
-    console.log("💾 Chuẩn bị lưu tour vào MongoDB...");
     await newTour.save();
-    console.log("✅ Tour mới đã được thêm:", newTour);
 
-    return res.status(201).json({
-      message: "🎉 Thêm tour thành công!",
+    res.status(201).json({
+      message: "Đăng tải Tour thành công!",
       tour: newTour,
     });
   } catch (err) {
-    console.error("❌ Lỗi khi tạo tour:", err?.message || err);
-    console.error("📄 Toàn bộ lỗi:", err);
-    console.error("📂 Stack Trace:", err.stack);
-
-    // 🧩 Hiển thị chi tiết ValidationError
-    if (err?.name === "ValidationError" && err.errors) {
-      console.error("🧩 Chi tiết lỗi xác thực:");
-      for (const [field, e] of Object.entries(err.errors)) {
-        console.error(
-          ` - ${field}: ${e.message} | Giá trị: ${JSON.stringify(e.value)}`
-        );
-      }
-
-      // Trả lỗi chi tiết về client
-      return res.status(400).json({
-        message: "❌ Xác thực dữ liệu thất bại (ValidationError)",
-        errors: Object.fromEntries(
-          Object.entries(err.errors).map(([k, v]) => [k, v.message])
-        ),
-      });
-    }
-
-    // 🧩 Trường hợp lỗi khác (CastError, MongoError...)
-    return res.status(500).json({
-      message: "❌ Lỗi khi tạo tour",
-      error: err?.message || "Lỗi máy chủ không xác định",
-    });
+    console.error("Lỗi khi đăng tải Tour:", err);
+    res.status(500).json({ message: "Lỗi máy chủ. Không thể đăng tải Tour." });
   }
 };
 
-// 🟡 Cập nhật số lượng khách đăng ký
-export const registerCustomer = async (req, res) => {
+// ===================================================
+// HÀM R (READ ALL) - Lấy tất cả Tours
+// Endpoint: GET /api/tours/
+// ===================================================
+const readAllTours = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { soLuongDangKy } = req.body;
+    const { search } = req.query;
+    let query = {};
 
-    const tour = await Tour.findById(id);
-    if (!tour) {
-      return res.status(404).json({ message: "Không tìm thấy tour" });
+    if (search) {
+      // Xây dựng query Mongoose để tìm kiếm theo các trường mới
+      query.$or = [
+        { tenTour: { $regex: search, $options: "i" } },
+        { diaDiem: { $regex: search, $options: "i" } },
+        { loaiHinh: { $regex: search, $options: "i" } },
+        // { thoiGian: { $regex: search, $options: "i" } }, // Có thể thêm nếu cần tìm kiếm theo thời gian
+      ];
     }
 
-    const soLuong = Number(soLuongDangKy);
-    if (Number.isNaN(soLuong) || soLuong <= 0) {
-      return res
-        .status(400)
-        .json({ message: "⚠️ Số lượng đăng ký không hợp lệ." });
-    }
+    const tours = await Tour.find(query).sort({ ngayTao: -1 });
 
-    tour.soLuongDaDangKy += soLuong;
-
-    if (tour.soLuongDaDangKy >= tour.soLuongKhachToiDa) {
-      tour.soLuongDaDangKy = tour.soLuongKhachToiDa;
-      tour.daDay = true;
-      console.log(`⚠️ Tour "${tour.tenTour}" đã đầy, sẽ ẩn khỏi danh sách.`);
-    }
-
-    await tour.save();
-    console.log(
-      `✅ Cập nhật số lượng đăng ký tour "${tour.tenTour}" thành công.`
-    );
-    res.status(200).json(tour);
-  } catch (error) {
-    console.error("❌ Lỗi khi đăng ký khách:", error);
-    res.status(500).json({
-      message: "Lỗi khi cập nhật khách đăng ký",
-      error: error.message,
+    res.status(200).json({
+      total: tours.length,
+      tours,
     });
-  }
-};
-
-// 🔴 Xoá tour
-export const deleteTour = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const deleted = await Tour.findByIdAndDelete(id);
-
-    if (!deleted) {
-      return res.status(404).json({ message: "Không tìm thấy tour để xóa" });
-    }
-
-    console.log("🗑️ Tour đã được xóa:", deleted.tenTour);
+  } catch (err) {
+    console.error("Lỗi khi lấy danh sách Tour:", err);
     res
-      .status(200)
-      .json({ message: `Đã xóa tour "${deleted.tenTour}" thành công.` });
-  } catch (error) {
-    console.error("❌ Lỗi khi xóa tour:", error);
-    res.status(500).json({
-      message: "Lỗi khi xóa tour",
-      error: error.message,
-    });
+      .status(500)
+      .json({ message: "Lỗi máy chủ. Không thể tải danh sách Tour." });
   }
+};
+
+// ===================================================
+// 💡 HÀM R (READ ONE) - Lấy chi tiết Tour theo ID (ĐÃ THÊM)
+// Endpoint: GET /api/tours/:id
+// ===================================================
+const readOneTour = async (req, res) => {
+  try {
+    const tourId = req.params.id;
+    const tour = await Tour.findById(tourId);
+
+    if (!tour) {
+      return res.status(404).json({ message: "Không tìm thấy Tour." });
+    }
+
+    res.status(200).json({ tour });
+  } catch (err) {
+    console.error("Lỗi khi lấy chi tiết Tour:", err);
+
+    if (err.name === "CastError") {
+      return res.status(400).json({ message: "ID Tour không hợp lệ." });
+    }
+
+    res
+      .status(500)
+      .json({ message: "Lỗi máy chủ. Không thể tải chi tiết Tour." });
+  }
+};
+
+// ===================================================
+// HÀM U (UPDATE) - Cập nhật Tour theo ID
+// Endpoint: PUT /api/tours/:id
+// ===================================================
+const updateTour = async (req, res) => {
+  try {
+    const tourId = req.params.id;
+    // req.body giờ chứa giaCoBan và thoiGian (và không chứa linkAffiliate/nganSach)
+
+    const updatedTour = await Tour.findByIdAndUpdate(tourId, req.body, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!updatedTour) {
+      return res
+        .status(404)
+        .json({ message: "Không tìm thấy Tour để cập nhật." });
+    }
+
+    res.status(200).json({
+      message: "Cập nhật Tour thành công!",
+      tour: updatedTour,
+    });
+  } catch (err) {
+    console.error("Lỗi khi cập nhật Tour:", err);
+
+    if (err.name === "CastError") {
+      return res.status(400).json({ message: "ID Tour không hợp lệ." });
+    }
+    // Xử lý lỗi validation (ví dụ: giá không phải là số)
+    if (err.name === "ValidationError") {
+      return res.status(400).json({ message: err.message });
+    }
+
+    res.status(500).json({ message: "Lỗi máy chủ. Không thể cập nhật Tour." });
+  }
+};
+
+// ===================================================
+// HÀM D (DELETE) - Xóa Tour theo ID
+// Endpoint: DELETE /api/tours/:id
+// ===================================================
+const deleteTour = async (req, res) => {
+  try {
+    const tourId = req.params.id;
+
+    const deletedTour = await Tour.findByIdAndDelete(tourId);
+
+    if (!deletedTour) {
+      return res.status(404).json({ message: "Không tìm thấy Tour để xóa." });
+    }
+
+    res.status(200).json({
+      message: "Xóa Tour thành công!",
+      tour: deletedTour,
+    });
+  } catch (err) {
+    console.error("Lỗi khi xóa Tour:", err);
+
+    if (err.name === "CastError") {
+      return res.status(400).json({ message: "ID Tour không hợp lệ." });
+    }
+
+    res.status(500).json({ message: "Lỗi máy chủ. Không thể xóa Tour." });
+  }
+};
+
+// Cập nhật module.exports để bao gồm tất cả các hàm
+module.exports = {
+  createNewTour,
+  readAllTours,
+  readOneTour,
+  updateTour,
+  deleteTour,
 };

@@ -56,7 +56,9 @@ export const sendVerificationCode = async (req, res, next) => {
     });
 
     console.log("✅ Đã gửi mã xác minh đến:", email);
-    res.status(200).json({ message: "Mã xác minh đã được gửi tới email của bạn" });
+    res
+      .status(200)
+      .json({ message: "Mã xác minh đã được gửi tới email của bạn" });
   } catch (error) {
     console.error("❌ Lỗi gửi email:", error);
     return res.status(500).json({ message: "Không thể gửi email xác minh" });

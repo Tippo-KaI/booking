@@ -1,29 +1,52 @@
 require("dotenv").config();
 const path = require("path");
-const express = require("express"); // express tạo server nodejs
+const express = require("express");
 const mongoose = require("mongoose");
-const cors = require("cors"); //middlewares cho phép gọi API trừ domain khác
-require("dotenv").config(); // đọc enviroment variables từ env
+const cors = require("cors");
 
-const app = express(); // tạo express chính định nghĩa middlewares và rounter
+const app = express();
 
-//Middleware - Phần mềm trung gian
+// Middleware
 app.use(cors());
 app.use(express.json());
+
+// Cho phép truy cập ảnh upload
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-//import routes
-const userRoutes = require("./routes/userRoutes");
-app.use("/api/users", userRoutes); //mọi route trong userRoutes sẽ được gắn thêm prefix /api/users
+// ================================
+// ROUTES
+// ================================
 
+const userRoutes = require("./routes/userRoutes");
+app.use("/api/users", userRoutes);
+
+const tourRoutes = require("./routes/tourRoutes");
+app.use("/api/tours", tourRoutes);
+
+const bookingRoutes = require("./routes/bookingRoutes");
+app.use("/api/bookings", bookingRoutes);
+
+const invoiceRoutes = require("./routes/invoiceRoutes");
+app.use("/api/admin/invoices", invoiceRoutes);
+
+const eventRoutes = require("./routes/eventRoutes");
+app.use("/api/admin/events", eventRoutes);
+
+const hotelRoutes = require("./routes/hotelRoutes");
+app.use("/api/admin/hotels", hotelRoutes);
+
+const uploadRoutes = require("./routes/upload");
+app.use("/api/upload", uploadRoutes);
+
+// ================================
+// DATABASE + SERVER
+// ================================
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
-    console.log("connected");
+    console.log("MongoDB connected");
     app.listen(5000, () => {
-      console.log("Port 5000");
+      console.log("Server chạy tại port 5000");
     });
   })
-  .catch((err) => {
-    console.log(err);
-  });
+  .catch((err) => console.log(err));

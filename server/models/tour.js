@@ -1,27 +1,34 @@
-import mongoose from "mongoose";
+// models/Tour.js (Đã sửa lại để dùng CommonJS)
 
-const tourSchema = new mongoose.Schema(
-  {
-    tenTour: { type: String, required: true },
-    diaDiem: { type: String, required: true },
-    gia: { type: Number, required: true },
-    soNgay: { type: Number, required: true },
-    moTa: { type: String },
-    ngayKhoiHanh: { type: Date, required: true },
-    hinhAnh: { type: String },
+const mongoose = require("mongoose"); // Dùng require
 
-    // 🔽 Các trường mở rộng
-    soLuongKhachToiDa: { type: Number, required: true },
-    soLuongDaDangKy: { type: Number, default: 0 },
+const tourSchema = new mongoose.Schema({
+  // 1. Dữ liệu chính
+  tenTour: { type: String, required: true },
+  diaDiem: { type: String, required: true },
+  moTa: { type: String, required: true }, // 2. Dữ liệu BÁN HÀNG TRỰC TIẾP (Thay thế linkAffiliate)
 
-    // 🥗 Ăn uống: chỉ Buffet hoặc Tự túc
-    anUong: { type: String, enum: ["Set menu", "Tự túc", "Buffet"], default: "Set menu", },
+  giaCoBan: {
+    type: Number,
+    required: true,
+    min: 0,
+  }, // 👈 GIÁ CỐ ĐỊNH (Giá/người)
+  thoiGian: {
+    type: String,
+    required: true,
+  }, // 👈 THỜI GIAN CỐ ĐỊNH (Ví dụ: "3 ngày 2 đêm") // 3. Dữ liệu Hiển thị/Lọc
 
-    khuVucThamQuan: { type: String, required: true },
+  anhDaiDien: { type: String, required: true }, // Các trường hỗ trợ lọc cơ bản
 
-    daDay: { type: Boolean, default: false },
+  loaiHinh: {
+    type: String,
+    enum: ["Biển", "Núi", "Văn hóa", "Nghỉ dưỡng", "Phiêu lưu"],
+    required: true,
   },
-  { timestamps: true }
-);
+  // Bỏ trường nganSach và thay bằng giá trị giaCoBan (Number)
 
-export default mongoose.model("tour", tourSchema);
+  ngayTao: { type: Date, default: Date.now },
+});
+
+// Sử dụng module.exports để export Model
+module.exports = mongoose.model("Tour", tourSchema);

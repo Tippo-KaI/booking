@@ -2,7 +2,6 @@ import React from "react";
 import Hero from "../components/Hero";
 import Feature from "../components/Feature";
 import Destinations from "../components/Destinations";
-import Footer from "../components/Footer";
 import { Link, useNavigate } from "react-router-dom";
 
 const Landing = () => {
@@ -25,7 +24,7 @@ const Landing = () => {
               onClick={() => navigate("/Login")}
               className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 cursor-pointer"
             >
-              Đặt ngay
+              Xem ngay
             </button>
           </div>
         </header>
@@ -33,7 +32,6 @@ const Landing = () => {
       <Hero />
       <Feature />
       <Destinations />
-      <Footer />
     </div>
   );
 };

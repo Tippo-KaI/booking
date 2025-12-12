@@ -1,50 +1,70 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+// Import icons
+import {
+  RiMailLine,
+  RiLockLine,
+  RiUser3Line,
+  RiKey2Line,
+  RiLoginCircleLine,
+  RiLoader4Line,
+} from "react-icons/ri"; // Thêm các icon mới và RiLoader4Line
 
 const Register = () => {
   const navigate = useNavigate();
 
   const [OTP, setOTP] = useState("");
   const [showOTP, setShowOTP] = useState(false);
-
+  const [loading, setLoading] = useState(false); // Thêm state loading
   const [error, setError] = useState({});
   const [form, setForm] = useState({
     hoTen: "",
-    ngaySinh: "",
-    gioiTinh: "",
-    diaChi: "",
-    dienThoai: "",
     email: "",
-    tenDangNhap: "",
     password: "",
     confirmPassword: "",
   });
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
-    setError({});
+    // Clear lỗi ngay lập tức khi người dùng bắt đầu nhập
+    if (error[e.target.name]) {
+      setError({ ...error, [e.target.name]: null, api: null });
+    } else if (e.target.name === "hoTen" && error.HoTen) {
+      setError({ ...error, HoTen: null, api: null });
+    } else if (e.target.name === "email" && error.Email) {
+      setError({ ...error, Email: null, api: null });
+    } else if (error.api) {
+      setError({ ...error, api: null });
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true); // Bắt đầu loading
 
     let newError = {};
-    if (!form.hoTen) newError.HoTen = "Họ tên là bắt buộc";
-    if (!form.ngaySinh) newError.NgaySinh = "Ngày sinh là bắt buộc";
-    if (!form.dienThoai) newError.DienThoai = "Số điện thoại là bắt buộc";
-    else if (!/^[0-9]{10}$/.test(form.dienThoai)) {
-      newError.DienThoai = "Số điện thoại không hợp lệ (10 chữ số)";
-    }
-    if (!form.gioiTinh) newError.GioiTinh = "Giới tính là bắt buộc";
-    if (!form.email) newError.Email = "Email là bắt buộc";
-    if (!form.tenDangNhap) newError.TenDangNhap = "Tên đăng nhập là bắt buộc";
-    if (!form.password) newError.password = "Mật khẩu là bắt buộc";
-    if (form.password !== form.confirmPassword) {
-      newError.confirmPassword = "Mật khẩu không khớp";
+
+    // 1. Kiểm tra các trường BẮT BUỘC: hoTen, email, password
+    if (!form.hoTen) newError.hoTen = "Vui lòng nhập Họ tên"; // Sửa key lỗi thành hoTen (đồng nhất với name)
+    if (!form.email) newError.email = "Vui lòng nhập Email"; // Sửa key lỗi thành email (đồng nhất với name)
+    if (!form.password) newError.password = "Vui lòng nhập Mật khẩu";
+    if (!form.confirmPassword)
+      newError.confirmPassword = "Vui lòng xác nhận Mật khẩu";
+
+    // 2. Kiểm tra khớp mật khẩu
+    if (
+      form.password &&
+      form.confirmPassword &&
+      form.password !== form.confirmPassword
+    ) {
+      newError.confirmPassword = "Mật khẩu xác nhận không khớp";
     }
 
     setError(newError);
-    if (Object.keys(newError).length > 0) return;
+    if (Object.keys(newError).length > 0) {
+      setLoading(false); // Dừng loading nếu có lỗi validation
+      return;
+    }
 
     try {
       const res = await fetch("http://localhost:5000/api/users/register", {
@@ -54,27 +74,37 @@ const Register = () => {
       });
 
       const data = await res.json();
-      console.log("Response: ", data);
 
       if (res.ok) {
         setShowOTP(true);
       } else {
-        alert(data.message);
+        // Xử lý lỗi từ API
+        setError({ api: data.message || "Đăng ký thất bại" });
       }
     } catch (err) {
-      // console.error(err);
-      alert("Lỗi kết nối server");
+      console.error(err);
+      setError({ api: "Lỗi kết nối server" });
+    } finally {
+      setLoading(false); // Dừng loading
     }
   };
 
   const handleVerifyOTP = async (e) => {
     e.preventDefault();
-    if (!OTP) return alert("Vui lòng nhập mã OTP");
+    setLoading(true); // Bắt đầu loading
+
+    if (!OTP) {
+      setError({ otp: "Vui lòng nhập mã OTP" });
+      setLoading(false);
+      return;
+    }
 
     try {
       const res = await fetch("http://localhost:5000/api/users/verifyUser", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        // Chú ý: Backend của bạn có thể chỉ cần email và otp để xác thực
+        // Tuy nhiên, dựa trên code cũ của bạn, tôi giữ lại formData: form
         body: JSON.stringify({ email: form.email, otp: OTP, formData: form }),
       });
 
@@ -83,239 +113,259 @@ const Register = () => {
         alert("Xác thực thành công! Tài khoản đã được tạo.");
         navigate("/login");
       } else {
-        alert(data.message || "Mã OTP không đúng hoặc đã hết hạn");
+        setError({
+          otpApi: data.message || "Mã OTP không đúng hoặc đã hết hạn",
+        });
       }
     } catch (err) {
       console.error(err);
-      alert("Lỗi kết nối server");
+      setError({ otpApi: "Lỗi kết nối server khi xác thực OTP" });
+    } finally {
+      setLoading(false); // Dừng loading
     }
   };
 
+  // --- Render Component ---
   return (
-    <div>
-      <header className="bg-white shadow-md top-0 left-0 z-50 h-16 w-full flex items-center px-16">
-        <div className="container flex justify-between items-center">
-          <Link
-            to="/"
-            className="text-2xl font-bold text-blue-600 cursor-pointer"
-          >
-            Booki
-          </Link>
+    <div className="bg-gray-50">
+      {/* Header (Giống hệt Login.js) */}
+      <header className="bg-white shadow-lg fixed top-0 left-0 z-50 h-16 w-full flex items-center border-b border-gray-100">
+        <div className="container mx-auto px-4 md:px-8 max-w-7xl">
+          <div className="flex justify-between items-center">
+            <Link to="/" className="text-2xl font-extrabold text-slate-800">
+              <span className="text-blue-600">Booki</span>
+            </Link>
+            <div className="flex items-center space-x-3">
+              <Link
+                to={"/login"}
+                className="text-sm font-medium text-gray-600 hover:text-purple-600 transition"
+              >
+                Đăng nhập
+              </Link>
+              <Link
+                to={"/"}
+                className="bg-purple-600 text-white text-sm px-4 py-2 rounded-lg font-medium transition hover:bg-purple-700 shadow-md"
+              >
+                Trang chủ
+              </Link>
+            </div>
+          </div>
         </div>
       </header>
 
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-100 to-purple-100">
-        {!showOTP ? (
-          <form
-            onSubmit={handleSubmit}
-            className="bg-white p-8 rounded-2xl shadow-lg w-lg border border-gray-100 my-10"
+      {/* Form Container (Giống hệt Login.js) */}
+      <div className="flex items-center justify-center min-h-screen pt-16">
+        {/* Form Đăng Ký / OTP */}
+        <form
+          onSubmit={showOTP ? handleVerifyOTP : handleSubmit}
+          className="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-sm border border-gray-100 transform hover:shadow-3xl transition duration-300"
+        >
+          {/* Tiêu đề */}
+          <h2 className="text-3xl font-extrabold mb-8 text-center text-slate-800">
+            {showOTP ? "Xác thực OTP" : "Tạo tài khoản mới!"}
+          </h2>
+
+          {/* API Error Message */}
+          {(error.api || error.otpApi) && (
+            <div className="p-3 mb-4 rounded-lg bg-red-50 border border-red-300 text-red-700 font-medium text-center shadow-sm">
+              {error.api || error.otpApi}
+            </div>
+          )}
+
+          {/* --- Form Đăng Ký Chính --- */}
+          {!showOTP ? (
+            <>
+              {/* Họ tên */}
+              <div className="mb-4">
+                <label
+                  htmlFor="hoTen"
+                  className="block mb-1 font-semibold text-gray-700 text-sm"
+                >
+                  <RiUser3Line className="inline-block mr-1 w-4 h-4" /> Họ tên
+                  <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="hoTen"
+                  value={form.hoTen}
+                  onChange={handleChange}
+                  className={`w-full p-3 border rounded-xl focus:outline-none focus:ring-2 ${
+                    error.hoTen
+                      ? "border-red-500 ring-red-500"
+                      : "border-gray-300 focus:ring-blue-400"
+                  }`}
+                  placeholder="Nhập họ tên của bạn"
+                />
+                {error.hoTen && (
+                  <p className="text-red-500 text-xs mt-1 font-medium">
+                    {error.hoTen}
+                  </p>
+                )}
+              </div>
+
+              {/* Email */}
+              <div className="mb-4">
+                <label
+                  htmlFor="email"
+                  className="block mb-1 font-semibold text-gray-700 text-sm"
+                >
+                  <RiMailLine className="inline-block mr-1 w-4 h-4" /> Email
+                  <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  value={form.email}
+                  onChange={handleChange}
+                  className={`w-full p-3 border rounded-xl focus:outline-none focus:ring-2 ${
+                    error.email
+                      ? "border-red-500 ring-red-500"
+                      : "border-gray-300 focus:ring-blue-400"
+                  }`}
+                  placeholder="nhap@email.com"
+                />
+                {error.email && (
+                  <p className="text-red-500 text-xs mt-1 font-medium">
+                    {error.email}
+                  </p>
+                )}
+              </div>
+
+              {/* Mật khẩu */}
+              <div className="mb-4">
+                <label
+                  htmlFor="password"
+                  className="block mb-1 font-semibold text-gray-700 text-sm"
+                >
+                  <RiLockLine className="inline-block mr-1 w-4 h-4" /> Mật khẩu
+                  <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="password"
+                  name="password"
+                  value={form.password}
+                  onChange={handleChange}
+                  className={`w-full p-3 border rounded-xl focus:outline-none focus:ring-2 ${
+                    error.password
+                      ? "border-red-500 ring-red-500"
+                      : "border-gray-300 focus:ring-purple-400"
+                  }`}
+                  placeholder="Nhập mật khẩu..."
+                />
+                {error.password && (
+                  <p className="text-red-500 text-xs mt-1 font-medium">
+                    {error.password}
+                  </p>
+                )}
+              </div>
+
+              {/* Xác nhận mật khẩu */}
+              <div className="mb-6">
+                <label
+                  htmlFor="confirmPassword"
+                  className="block mb-1 font-semibold text-gray-700 text-sm"
+                >
+                  <RiKey2Line className="inline-block mr-1 w-4 h-4" /> Xác nhận
+                  Mật khẩu
+                  <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="password"
+                  name="confirmPassword"
+                  value={form.confirmPassword}
+                  onChange={handleChange}
+                  className={`w-full p-3 border rounded-xl focus:outline-none focus:ring-2 ${
+                    error.confirmPassword
+                      ? "border-red-500 ring-red-500"
+                      : "border-gray-300 focus:ring-purple-400"
+                  }`}
+                  placeholder="Nhập lại mật khẩu..."
+                />
+                {error.confirmPassword && (
+                  <p className="text-red-500 text-xs mt-1 font-medium">
+                    {error.confirmPassword}
+                  </p>
+                )}
+              </div>
+            </>
+          ) : (
+            /* --- Form Xác thực OTP --- */
+            <>
+              <p className="text-center text-gray-600 mb-4 text-sm">
+                Mã xác thực đã được gửi đến{" "}
+                <b className="text-purple-600">{form.email}</b>
+              </p>
+              <div className="mb-4">
+                <label
+                  htmlFor="otp"
+                  className="block mb-1 font-semibold text-gray-700 text-sm"
+                >
+                  Mã OTP
+                  <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="otp"
+                  value={OTP}
+                  onChange={(e) => {
+                    setOTP(e.target.value);
+                    if (error.otp) setError({ ...error, otp: null });
+                  }}
+                  className={`w-full p-3 border rounded-xl text-center text-xl tracking-widest focus:outline-none focus:ring-2 ${
+                    error.otp || error.otpApi
+                      ? "border-red-500 ring-red-500"
+                      : "border-gray-300 focus:ring-green-400"
+                  }`}
+                  placeholder="------"
+                  maxLength={6} // Giả sử OTP 6 chữ số
+                />
+                {error.otp && (
+                  <p className="text-red-500 text-xs mt-1 font-medium">
+                    {error.otp}
+                  </p>
+                )}
+              </div>
+            </>
+          )}
+
+          {/* Submit button */}
+          <button
+            type="submit"
+            disabled={loading}
+            className={`w-full bg-gradient-to-r ${
+              showOTP
+                ? "from-green-600 to-teal-600 shadow-teal-500/30"
+                : "from-blue-600 to-purple-600 shadow-blue-500/30"
+            } text-white py-3 rounded-xl hover:opacity-95 transition duration-300 font-bold shadow-lg flex items-center justify-center gap-2 ${
+              loading ? "opacity-70 cursor-not-allowed" : ""
+            }`}
           >
-            <h2 className="text-3xl font-extrabold mb-6 text-center bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent">
-              Đăng ký
-            </h2>
+            {loading ? (
+              <>
+                <RiLoader4Line className="animate-spin w-5 h-5" />{" "}
+                {showOTP ? "Đang xác thực..." : "Đang đăng ký..."}
+              </>
+            ) : (
+              <>
+                <RiLoginCircleLine className="w-5 h-5" />{" "}
+                {showOTP ? "Xác nhận OTP" : "Đăng ký"}
+              </>
+            )}
+          </button>
 
-            {/* Họ tên */}
-            <div className="mb-4">
-              <label className="block mb-1 font-medium">
-                Họ tên <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                name="hoTen"
-                value={form.hoTen}
-                onChange={handleChange}
-                className="w-full p-3 border rounded-lg"
-                placeholder="Nhập họ tên..."
-              />
-              {error.HoTen && (
-                <p className="text-red-500 text-sm">{error.HoTen}</p>
-              )}
-            </div>
-
-            {/* Ngày sinh */}
-            <div className="mb-4">
-              <label className="block mb-1 font-medium">
-                Ngày sinh <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="date"
-                name="ngaySinh"
-                value={form.ngaySinh}
-                onChange={handleChange}
-                className="w-full p-3 border rounded-lg"
-              />
-              {error.NgaySinh && (
-                <p className="text-red-500 text-sm">{error.NgaySinh}</p>
-              )}
-            </div>
-
-            {/* Giới tính */}
-            <div className="mb-4">
-              <label className="block mb-1 font-medium">
-                Giới tính <span className="text-red-500">*</span>
-              </label>
-              <select
-                name="gioiTinh"
-                value={form.gioiTinh}
-                onChange={handleChange}
-                className="w-full p-3 border rounded-lg"
-              >
-                <option value="">-- Chọn --</option>
-                <option value="Nam">Nam</option>
-                <option value="Nữ">Nữ</option>
-                <option value="Khác">Khác</option>
-              </select>
-              {error.GioiTinh && (
-                <p className="text-red-500 text-sm">{error.GioiTinh}</p>
-              )}
-            </div>
-
-            {/* Địa chỉ */}
-            <div className="mb-4">
-              <label className="block mb-1 font-medium">Địa chỉ</label>
-              <input
-                type="text"
-                name="diaChi"
-                value={form.diaChi}
-                onChange={handleChange}
-                className="w-full p-3 border rounded-lg"
-                placeholder="Nhập địa chỉ..."
-              />
-            </div>
-
-            {/* Điện thoại */}
-            <div className="mb-4">
-              <label className="block mb-1 font-medium">
-                Số điện thoại <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                name="dienThoai"
-                value={form.dienThoai}
-                onChange={handleChange}
-                className="w-full p-3 border rounded-lg"
-                placeholder="Nhập số điện thoại..."
-              />
-              {error.DienThoai && (
-                <p className="text-red-500 text-sm">{error.DienThoai}</p>
-              )}
-            </div>
-
-            {/* Email */}
-            <div className="mb-4">
-              <label className="block mb-1 font-medium">
-                Email <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="email"
-                name="email"
-                value={form.email}
-                onChange={handleChange}
-                className="w-full p-3 border rounded-lg"
-                placeholder="Nhập email..."
-              />
-              {error.Email && (
-                <p className="text-red-500 text-sm">{error.Email}</p>
-              )}
-            </div>
-
-            {/* Tên đăng nhập */}
-            <div className="mb-4">
-              <label className="block mb-1 font-medium">Tên đăng nhập</label>
-              <input
-                type="text"
-                name="tenDangNhap"
-                value={form.tenDangNhap}
-                onChange={handleChange}
-                className="w-full p-3 border rounded-lg"
-                placeholder="Nhập tên đăng nhập..."
-              />
-              {error.TenDangNhap && (
-                <p className="text-red-500 text-sm">{error.TenDangNhap}</p>
-              )}
-            </div>
-
-            {/* Mật khẩu */}
-            <div className="mb-4">
-              <label className="block mb-1 font-medium">
-                Mật khẩu <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="password"
-                name="password"
-                value={form.password}
-                onChange={handleChange}
-                className="w-full p-3 border rounded-lg"
-                placeholder="Nhập mật khẩu..."
-              />
-              {error.password && (
-                <p className="text-red-500 text-sm">{error.password}</p>
-              )}
-            </div>
-
-            {/* Xác nhận mật khẩu */}
-            <div className="mb-6">
-              <label className="block mb-1 font-medium">
-                Xác nhận mật khẩu <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="password"
-                name="confirmPassword"
-                value={form.confirmPassword}
-                onChange={handleChange}
-                className="w-full p-3 border rounded-lg"
-                placeholder="Nhập lại mật khẩu..."
-              />
-              {error.confirmPassword && (
-                <p className="text-red-500 text-sm">{error.confirmPassword}</p>
-              )}
-            </div>
-
-            {/* Submit */}
-            <button
-              type="submit"
-              className="w-full bg-gradient-to-r from-blue-500 to-purple-500 text-white py-2 rounded-lg hover:opacity-90 transition font-semibold shadow-md"
-            >
-              Đăng ký
-            </button>
-
-            {/* Link Login */}
-            <p className="text-center mt-4 text-gray-600">
+          {/* Login link */}
+          <div className="mt-6 pt-4 border-t border-gray-200 text-center text-gray-600">
+            <p className="text-sm">
               Đã có tài khoản?{" "}
               <span
-                onClick={() => navigate("/Login")}
-                className="cursor-pointer text-blue-500 hover:underline font-medium ml-1"
+                className="cursor-pointer text-purple-600 hover:underline font-bold"
+                onClick={() => navigate("/login")}
               >
-                Đăng nhập
+                Đăng nhập ngay
               </span>
             </p>
-          </form>
-        ) : (
-          <form
-            onSubmit={handleVerifyOTP}
-            className="bg-white p-8 rounded-2xl shadow-lg w-md border border-gray-100 my-10"
-          >
-            <h2 className="text-2xl font-bold mb-4 text-center text-blue-600">
-              Nhập mã OTP
-            </h2>
-            <p className="text-center text-gray-600 mb-4">
-              Mã xác thực đã được gửi đến <b>{form.email}</b>
-            </p>
-            <input
-              type="text"
-              value={OTP}
-              onChange={(e) => setOTP(e.target.value)}
-              className="w-full p-3 border rounded-lg mb-4 text-center"
-              placeholder="Nhập mã OTP gồm 6 chữ số"
-            />
-            <button
-              type="submit"
-              className="w-full bg-gradient-to-r from-green-500 to-blue-500 text-white py-2 rounded-lg hover:opacity-90 transition font-semibold shadow-md"
-            >
-              Xác nhận OTP
-            </button>
-          </form>
-        )}
+          </div>
+        </form>
       </div>
     </div>
   );

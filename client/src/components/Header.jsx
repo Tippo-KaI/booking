@@ -17,25 +17,17 @@ const Header = () => {
           <Link to="/dashboard" className="hover:text-blue-600">
             Trang chủ
           </Link>
-          <Link to="/places" className="hover:text-blue-600">
-            Địa điểm
+          <Link to="/tour" className="hover:text-blue-600">
+            Tour
           </Link>
-          <Link to="/offers" className="hover:text-blue-600">
-            Ưu đãi
+          <Link to="/hotel" className="hover:text-blue-600">
+            Khách sạn & Lưu trú
           </Link>
-          <Link to="/contact" className="hover:text-blue-600">
-            Liên hệ
+          <Link to="/event" className="hover:text-blue-600">
+            Sự kiện nổi bật
           </Link>
           <Link to="/userinfo">Account</Link>
         </nav>
-      </div>
-
-      <div className="flex justify-center gap-15 bg-gradient-to-tr from-blue-500 to-purple-500 w-full py-4">
-        <Link to="/tour">Tour</Link>
-        <Link to="/chuyenbay">Chuyến Bay</Link>
-        <Link to="/luutru">Lưu trú</Link>
-        <Link to="/dichuyen">Di Chuyển</Link>
-        <Link to="/hoatdong">Hoạt Động</Link>
       </div>
     </header>
   );
