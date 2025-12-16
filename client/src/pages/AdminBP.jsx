@@ -64,7 +64,7 @@ const AdminBP = () => {
     }
   };
 
-  // Hàm lấy Icon trạng thái (Đã được định nghĩa trong AdminBookingPage gốc)
+  // Hàm lấy Icon trạng thái 
   const getStatusIcon = (status) => {
     switch (status) {
       case "Confirmed":

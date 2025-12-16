@@ -25,7 +25,6 @@ import EditHotel from "./pages/EditHotel";
 import AddHotel from "./pages/AddHotel";
 
 import ManageUsers from "./pages/ManageUser";
-import AdminLayout from "./components/AdminLayout";
 
 import { Routes, Route } from "react-router-dom";
 
@@ -50,8 +49,6 @@ function App() {
       <Route path="/userinfo" element={<UserInfo />} />
 
       <Route path="/admin">
-        <Route path="AdminLayout" element={<AdminLayout />} />
-
         <Route path="manage-tours" element={<ManageTours />} />
         <Route path="add-tour" element={<AddTour />} />
         <Route path="edit-tour/:id" element={<EditTour />} />

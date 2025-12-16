@@ -17,7 +17,7 @@ import {
   RiMailLine,
   RiPhoneLine,
   RiCloseCircleFill,
-  RiSendPlaneFill, // Icon mới cho nút Xác nhận
+  RiSendPlaneFill,
 } from "react-icons/ri";
 
 const API_BOOKING_DETAIL = "http://localhost:5000/api/bookings/";

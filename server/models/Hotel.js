@@ -3,15 +3,10 @@
 const mongoose = require("mongoose");
 
 const hotelSchema = new mongoose.Schema({
-  // 1. Dữ liệu cơ bản
   tenKhachSan: { type: String, required: true },
   moTa: { type: String, required: true },
-
-  // 2. Địa điểm
-  tinhThanh: { type: String, required: true }, // Tỉnh/Thành phố
-  diaChiChiTiet: { type: String, required: true }, // Địa chỉ cụ thể
-
-  // 3. Thông tin hiển thị/Lọc
+  tinhThanh: { type: String, required: true }, 
+  diaChiChiTiet: { type: String, required: true }, 
   hangSao: {
     type: Number,
     min: 1,
@@ -20,7 +15,7 @@ const hotelSchema = new mongoose.Schema({
   },
   loaiHinh: {
     type: String,
-    enum: ["Khách sạn", "Resort", "Homestay", "Villa", "Khác"], // Ví dụ phân loại
+    enum: ["Khách sạn", "Resort", "Homestay", "Villa", "Khác"],
     default: "Khách sạn",
     required: true,
   },
@@ -29,12 +24,8 @@ const hotelSchema = new mongoose.Schema({
     min: 0,
     required: true,
   },
-
-  // 4. Liên kết Affiliate và Media
-  linkDatPhong: { type: String, required: true }, // Link đặt phòng (Affiliate)
-  anhDaiDien: { type: String, required: true }, // URL ảnh đại diện
-
-  // 5. Metadata
+  linkDatPhong: { type: String, required: true }, 
+  anhDaiDien: { type: String, required: true }, 
   ngayTao: { type: Date, default: Date.now },
 });
 

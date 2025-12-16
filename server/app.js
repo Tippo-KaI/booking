@@ -6,16 +6,10 @@ const cors = require("cors");
 
 const app = express();
 
-// Middleware
 app.use(cors());
 app.use(express.json());
 
-// Cho phép truy cập ảnh upload
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
-
-// ================================
-// ROUTES
-// ================================
 
 const userRoutes = require("./routes/userRoutes");
 app.use("/api/users", userRoutes);
@@ -38,9 +32,6 @@ app.use("/api/admin/hotels", hotelRoutes);
 const uploadRoutes = require("./routes/upload");
 app.use("/api/upload", uploadRoutes);
 
-// ================================
-// DATABASE + SERVER
-// ================================
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {

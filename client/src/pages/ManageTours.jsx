@@ -71,11 +71,6 @@ const ManageTours = () => {
   };
 
   const handleEdit = (id) => navigate(`/admin/edit-tour/${id}`);
-
-  /* -----------------------------------------------------------
-      GIAO DIỆN CHÍNH
-  ----------------------------------------------------------- */
-
   if (loading)
     return (
       <AdminLayout>
